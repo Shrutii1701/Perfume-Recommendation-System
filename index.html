@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Perfume Recommendation System</title>
+    <!-- Add this CSS in the head section -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        h1 {
+            color: #9c27b0;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            background: #f8f8f8;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            transition: transform 0.2s;
+        }
+        .input-group:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        label {
+            color: #9c27b0;
+            font-size: 1.1em;
+        }
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            color: #444;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23%239c27b0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 12px auto;
+        }
+
+        select:hover {
+            border-color: #ba68c8;
+            box-shadow: 0 2px 8px rgba(156, 39, 176, 0.1);
+            transform: translateY(-1px);
+        }
+
+        /* Remove duplicate select:focus and fix CSS structure */
+        select:focus {
+            border-color: #9c27b0;
+            outline: none;
+            box-shadow: 0 2px 12px rgba(156, 39, 176, 0.2);
+        }
+
+        #result {
+            background: #f8f8f8;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #9c27b0;
+            margin-top: 30px;
+            white-space: pre-line;
+            line-height: 1.6;
+        }
+
+        .perfume-recommendation {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .generating-text, .loader {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            color: #9c27b0;
+        }
+
+        .perfume-icon {
+            font-size: 2em;
+            margin-bottom: 15px;
+            color: #9c27b0;
+        }
+        button {
+            background: linear-gradient(45deg, #9c27b0, #ba68c8);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(156, 39, 176, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(156, 39, 176, 0.3);
+            background: linear-gradient(45deg, #ba68c8, #9c27b0);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(156, 39, 176, 0.2);
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                120deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        /* Add after existing styles */
+                .price-slider {
+                    width: 100%;
+                    margin: 10px 0;
+                }
+        
+                input[type="range"] {
+                    width: 100%;
+                    height: 8px;
+                    border-radius: 5px;
+                    background: #e0e0e0;
+                    outline: none;
+                    -webkit-appearance: none;
+                }
+        
+                input[type="range"]::-webkit-slider-thumb {
+                    -webkit-appearance: none;
+                    width: 20px;
+                    height: 20px;
+                    background: #9c27b0;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
+        
+                input[type="range"]::-webkit-slider-thumb:hover {
+                    transform: scale(1.2);
+                    box-shadow: 0 0 10px rgba(156, 39, 176, 0.3);
+                }
+        
+                .price-value {
+                    text-align: center;
+                    color: #9c27b0;
+                    font-weight: bold;
+                    margin-top: 10px;
+                }
+    </style>
+</head>
+<body>
+    <!-- Update the header section -->
+    <div class="container">
+        <div class="header">
+            <div class="perfume-icon">✨</div>
+            <h1>Perfume Recommendation System</h1>
+            <div class="subtitle">Find your perfect signature scent</div>
+        </div>
+        
+        <div class="input-group">
+            <label>Gender Preference</label>
+            <select id="gender">
+                <option value="unisex">Unisex</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Occasion</label>
+            <select id="occasion">
+                <option value="daily">Daily Wear</option>
+                <option value="formal">Formal Events</option>
+                <option value="date">Date Night</option>
+                <option value="office">Office Wear</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Price Range</label>
+            <input type="range" id="budget" min="200" max="15000" step="100" value="200" class="price-slider">
+            <div class="price-value" id="priceValue">₹200</div>
+        </div>
+
+        <div class="input-group">
+            <label>Desired Mood</label>
+            <select id="mood">
+                <option value="confident">Confident</option>
+                <option value="romantic">Romantic</option>
+                <option value="fresh">Fresh</option>
+                <option value="sophisticated">Sophisticated</option>
+                <option value="energetic">Energetic</option>
+            </select>
+        </div>
+
+        <!-- Add this CSS for the loader and generating text -->
+        <style>
+            .generating-text, .loader {
+                display: none;
+            }
+        </style>
+
+        <!-- Update the HTML order -->
+        <!-- Remove the duplicate style tag in body -->
+        <button onclick="getRecommendation()">Find My Perfume</button>
+        <div class="generating-text" id="generatingText">Generating perfect perfumes for you...</div>
+        <div class="loader" id="loader"></div>
+        <div id="result"></div>
+
+        <!-- Update the JavaScript section -->
+        <script>
+            document.getElementById('budget').addEventListener('input', function() {
+                document.getElementById('priceValue').textContent = '₹' + this.value;
+            });
+
+            function getRecommendation() {
+                document.getElementById('result').textContent = '';
+                document.getElementById('loader').style.display = 'block';
+                document.getElementById('generatingText').style.display = 'block';
+                
+                const gender = document.getElementById('gender').value;
+                const occasion = document.getElementById('occasion').value;
+                const budget = '₹' + document.getElementById('budget').value;
+                const mood = document.getElementById('mood').value;
+    
+                const structuredPrompt = `Please recommend 3-4 perfumes based on the following preferences:
+            - Gender Category: ${gender}
+            - Occasion: ${occasion}
+            - Budget Range: ${budget}
+            - Desired Mood: ${mood}`;
+    
+                fetch('/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt: structuredPrompt })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loader').style.display = 'none';
+                    document.getElementById('generatingText').style.display = 'none';
+                    const recommendations = data.result.split('Perfume #').filter(Boolean);
+                    const formattedResult = recommendations.map(rec => 
+                        `<div class="perfume-recommendation">Perfume #${rec}</div>`
+                    ).join('');
+                    document.getElementById('result').innerHTML = formattedResult;
+                })
+                .catch(error => {
+                    document.getElementById('loader').style.display = 'none';
+                    document.getElementById('generatingText').style.display = 'none';
+                    document.getElementById('result').textContent = 'An error occurred';
+                    console.error('Error:', error);
+                });
+            }
+        </script>
+    </div>
+</body>
+</html>

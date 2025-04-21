@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Perfume Recommendations</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --container-bg: #ffffff;
+            --text-color: #333333;
+            --primary-color: #9c27b0;
+            --secondary-color: #ba68c8;
+            --card-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #000000;
+            --container-bg: #1a1a1a;
+            --text-color: #ba68c8;
+            --primary-color: #9c27b0;
+            --secondary-color: #ba68c8;
+            --card-bg: #1a1a1a;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .explore-more {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(156, 39, 176, 0.2);
+        }
+
+        .explore-more:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(156, 39, 176, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 60px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .perfume-recommendation {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(156, 39, 176, 0.1);
+            border-left: 4px solid var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+
+        .perfume-recommendation:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(156, 39, 176, 0.2);
+        }
+
+        .perfume-title {
+            color: var(--primary-color);
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .perfume-detail {
+            margin: 8px 0;
+            display: flex;
+            align-items: baseline;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+            width: 120px;
+            flex-shrink: 0;
+        }
+
+        .detail-value {
+            color: var(--secondary-color);
+        }
+
+        .price-tag {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .loader {
+            text-align: center;
+            margin: 50px 0;
+            position: relative;
+            color: var(--secondary-color);
+        }
+        
+        .loader::after {
+            content: '';
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            display: inline-block;
+            animation: spin 1s linear infinite;
+            margin-top: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            text-align: center;
+            color: var(--secondary-color);
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(156, 39, 176, 0.1);
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(156, 39, 176, 0.2);
+        }
+
+        .theme-icon {
+            font-size: 1.2em;
+        }
+    </style>
+    <script>
+        // Check if form data exists when the page loads
+        window.onload = function() {
+            const formData = sessionStorage.getItem('perfumeFormData');
+            if (!formData) {
+                window.location.href = 'index.html';
+            }
+        };
+    </script>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <span class="theme-icon">☀️</span>
+    </button>
+    <div class="container">
+        <button class="explore-more" onclick="window.location.href='index.html'">Explore More</button>
+        <div class="header">
+            <h1>Your Perfect Perfumes</h1>
+        </div>
+        <div id="loader" class="loader">Loading your recommendations...</div>
+        <div id="result"></div>
+    </div>
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Update icon
+            const themeIcon = document.querySelector('.theme-icon');
+            themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // Set theme on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            const themeIcon = document.querySelector('.theme-icon');
+            themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+        });
+
+        async function generate(prompt) {
+            const API_KEY = "AIzaSyA2nDfI8ofYHjskbpMHMozv6Gnk_JRcoKo";
+            try {
+                const response = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=' + API_KEY, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: prompt
+                            }]
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API request failed with status ${response.status}: ${errorText}`);
+                }
+
+                const data = await response.json();
+                
+                if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0].text) {
+                    throw new Error('Invalid API response structure');
+                }
+
+                return data.candidates[0].content.parts[0].text;
+            } catch (error) {
+                console.error('Generate function error:', error);
+                throw error;
+            }
+        }
+
+        async function loadRecommendations() {
+            try {
+                const formData = JSON.parse(sessionStorage.getItem('perfumeFormData'));
+                if (!formData) {
+                    throw new Error('No form data found');
+                }
+
+                const systemPrompt = `You are a perfume recommendation expert. Provide brief, concise recommendations.
+                For each perfume, use this exact format:
+                
+                • Perfume #1:
+                  • Brand & Name: [Keep it short]
+                  • Notes: [List 2-3 key notes only]
+                  • Price: [₹ amount]
+                  • Best For: [1-2 words]
+                  • Quick Description: [Maximum 10 words]
+
+                Important Guidelines:
+                • Provide exactly 3 perfumes
+                • Keep all descriptions extremely brief
+                • Use only bullet points
+                • Include prices in ₹ (INR)
+                • Match the specified gender, occasion, budget, and mood
+                • Focus on perfumes available in India`;
+
+                const userPrompt = `Please recommend 3 perfumes based on the following preferences:
+                - Gender Category: ${formData.gender}
+                - Occasion: ${formData.occasion}
+                - Budget Range: ₹${formData.budget}
+                - Desired Mood: ${formData.mood}`;
+
+                const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
+                const result = await generate(fullPrompt);
+                
+                document.getElementById('loader').style.display = 'none';
+                
+                const recommendations = result
+                    .split('Perfume #')
+                    .filter(Boolean)
+                    .map(rec => {
+                        const lines = rec.trim().split('\n').filter(line => line.trim());
+                        const details = {};
+                        
+                        lines.forEach(line => {
+                            line = line.trim();
+                            if (line.includes('Brand & Name:')) details.name = line.split(':')[1].trim();
+                            if (line.includes('Notes:')) details.notes = line.split(':')[1].trim();
+                            if (line.includes('Price:')) details.price = line.split(':')[1].trim();
+                            if (line.includes('Best For:')) details.bestFor = line.split(':')[1].trim();
+                            if (line.includes('Quick Description:')) details.description = line.split(':')[1].trim();
+                        });
+
+                        if (details.name && details.notes && details.price && details.bestFor && details.description) {
+                            return `
+                                <div class="perfume-recommendation">
+                                    <div class="perfume-title">✨ ${details.name}</div>
+                                    <div class="perfume-detail">
+                                        <span class="detail-label">Notes:</span>
+                                        <span class="detail-value">${details.notes}</span>
+                                    </div>
+                                    <div class="perfume-detail">
+                                        <span class="detail-label">Best For:</span>
+                                        <span class="detail-value">${details.bestFor}</span>
+                                    </div>
+                                    <div class="perfume-detail">
+                                        <span class="detail-label">Description:</span>
+                                        <span class="detail-value">${details.description}</span>
+                                    </div>
+                                    <div class="perfume-detail">
+                                        <span class="detail-label">Price:</span>
+                                        <span class="detail-value price-tag">${details.price}</span>
+                                    </div>
+                                </div>`;
+                        }
+                        return '';
+                    })
+                    .filter(html => html.trim() !== '');
+
+                if (recommendations.length === 0) {
+                    throw new Error('No valid recommendations generated');
+                }
+
+                document.getElementById('result').innerHTML = recommendations.join('');
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('result').innerHTML = `
+                    <div class="error-message">
+                        ${error.message === 'No form data found' 
+                            ? 'Please start from the home page to get recommendations.' 
+                            : 'An error occurred while getting recommendations. Please try again.'}
+                    </div>`;
+            }
+        }
+
+        // Load recommendations when the page loads
+        document.addEventListener('DOMContentLoaded', loadRecommendations);
+    </script>
+</body>
+</html>

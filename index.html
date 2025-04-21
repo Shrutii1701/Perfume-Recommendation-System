@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Perfume Recommendation System</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --container-bg: #ffffff;
+            --text-color: #333333;
+            --primary-color: #9c27b0;
+            --secondary-color: #ba68c8;
+            --input-bg: #ffffff;
+            --input-border: #9c27b0;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #000000;
+            --container-bg: #1a1a1a;
+            --text-color: #ba68c8;
+            --primary-color: #9c27b0;
+            --secondary-color: #ba68c8;
+            --input-bg: #1a1a1a;
+            --input-border: #9c27b0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: var(--container-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: var(--secondary-color);
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            background: var(--container-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            transition: transform 0.2s;
+        }
+        .input-group:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        label {
+            color: var(--primary-color);
+            font-size: 1.1em;
+        }
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--input-border);
+            border-radius: 8px;
+            font-size: 16px;
+            color: var(--secondary-color);
+            background-color: var(--input-bg);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23%239c27b0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 12px auto;
+        }
+
+        select:hover {
+            border-color: var(--secondary-color);
+            box-shadow: 0 2px 8px rgba(156, 39, 176, 0.1);
+            transform: translateY(-1px);
+        }
+
+        select:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 2px 12px rgba(156, 39, 176, 0.2);
+        }
+
+        #result {
+            background: var(--container-bg);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            margin-top: 30px;
+            white-space: pre-line;
+            line-height: 1.6;
+        }
+
+        .perfume-recommendation {
+            background: var(--container-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(156, 39, 176, 0.1);
+            border-left: 4px solid var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+
+        .perfume-recommendation:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(156, 39, 176, 0.2);
+        }
+
+        .perfume-title {
+            color: var(--primary-color);
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .perfume-detail {
+            margin: 8px 0;
+            display: flex;
+            align-items: baseline;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--secondary-color);
+            width: 120px;
+            flex-shrink: 0;
+        }
+
+        .detail-value {
+            color: var(--secondary-color);
+        }
+
+        .price-tag {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        #result {
+            margin-top: 30px;
+        }
+
+        .generating-text, .loader {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            color: var(--primary-color);
+        }
+
+        .perfume-icon {
+            font-size: 2em;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        button {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(156, 39, 176, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(156, 39, 176, 0.3);
+            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+        }
+        
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(156, 39, 176, 0.2);
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                120deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        .price-slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 10px rgba(156, 39, 176, 0.3);
+        }
+        
+        .price-value {
+            text-align: center;
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .error-message {
+            text-align: center;
+            color: var(--secondary-color);
+            padding: 20px;
+            background: var(--container-bg);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(156, 39, 176, 0.1);
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(156, 39, 176, 0.2);
+        }
+
+        .theme-icon {
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <span class="theme-icon">☀️</span>
+    </button>
+    <div class="container">
+        <div class="header">
+            <div class="perfume-icon">✨</div>
+            <h1>Perfume Recommendation System</h1>
+            <div class="subtitle">Find your perfect signature scent</div>
+        </div>
+        
+        <div class="input-group">
+            <label>Gender Preference</label>
+            <select id="gender" class="form-control">
+                <option value="unisex">Unisex</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Occasion</label>
+            <select id="occasion" class="form-control">
+                <option value="daily">Daily Wear</option>
+                <option value="formal">Formal Events</option>
+                <option value="date">Date Night</option>
+                <option value="office">Office Wear</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Price Range</label>
+            <input type="range" id="budget" min="200" max="15000" step="100" value="200" class="price-slider">
+            <div class="price-value" id="priceValue">₹200</div>
+        </div>
+
+        <div class="input-group">
+            <label>Desired Mood</label>
+            <select id="mood" class="form-control">
+                <option value="confident">Confident</option>
+                <option value="romantic">Romantic</option>
+                <option value="fresh">Fresh</option>
+                <option value="sophisticated">Sophisticated</option>
+                <option value="energetic">Energetic</option>
+            </select>
+        </div>
+
+        <button onclick="getRecommendation()">Find My Perfume</button>
+        <div class="generating-text" id="generatingText">Generating perfect perfumes for you...</div>
+        <div class="loader" id="loader"></div>
+        <div id="result"></div>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Update icon
+            const themeIcon = document.querySelector('.theme-icon');
+            themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // Set theme on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            const themeIcon = document.querySelector('.theme-icon');
+            themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+        });
+    </script>
+</body>
+</html>

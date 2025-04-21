@@ -294,6 +294,83 @@
         .theme-icon {
             font-size: 1.2em;
         }
+
+        /* Responsive styles */
+        @media screen and (max-width: 768px) {
+            .container {
+                max-width: 95%;
+                padding: 20px;
+            }
+
+            .form-card {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .input-group {
+                margin: 15px 0;
+            }
+
+            select, input[type="range"] {
+                width: 100%;
+            }
+
+            .budget-value {
+                text-align: center;
+                margin-top: 8px;
+            }
+
+            .submit-btn {
+                width: 100%;
+                margin-top: 20px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+                margin-bottom: 15px;
+            }
+
+            .form-card {
+                padding: 15px;
+                margin: 5px;
+            }
+
+            .theme-toggle {
+                top: 10px;
+                right: 10px;
+                width: 35px;
+                height: 35px;
+                padding: 8px;
+            }
+
+            .input-group label {
+                font-size: 0.9em;
+            }
+        }
+
+        /* Fix for theme toggle on mobile */
+        @media screen and (max-width: 768px) {
+            .theme-toggle {
+                position: fixed;
+                top: auto;
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .container {
+                padding-top: 10px;
+            }
+        }
     </style>
 </head>
 <body>
